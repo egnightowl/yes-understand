@@ -1,98 +1,67 @@
-<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
-<html>
-<head>
-  <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
-  <meta http-equiv="Content-Style-Type" content="text/css">
-  <title></title>
-  <meta name="Generator" content="Cocoa HTML Writer">
-  <meta name="CocoaVersion" content="2575.3">
-  <style type="text/css">
-    p.p1 {margin: 0.0px 0.0px 0.0px 0.0px; font: 12.0px Helvetica}
-    p.p2 {margin: 0.0px 0.0px 0.0px 0.0px; font: 12.0px Helvetica; min-height: 14.0px}
-  </style>
-</head>
-<body>
-<p class="p1">&lt;!DOCTYPE html&gt;</p>
-<p class="p1">&lt;html lang="en"&gt;</p>
-<p class="p1">&lt;head&gt;</p>
-<p class="p1"><span class="Apple-converted-space">    </span>&lt;meta charset="UTF-8"&gt;</p>
-<p class="p1"><span class="Apple-converted-space">    </span>&lt;meta name="viewport" content="width=device-width, initial-scale=1.0"&gt;</p>
-<p class="p1"><span class="Apple-converted-space">    </span>&lt;title&gt;Animated Chat&lt;/title&gt;</p>
-<p class="p1"><span class="Apple-converted-space">    </span>&lt;style&gt;</p>
-<p class="p1"><span class="Apple-converted-space">        </span>/* 전체 화면 스타일 */</p>
-<p class="p1"><span class="Apple-converted-space">        </span>body {</p>
-<p class="p1"><span class="Apple-converted-space">            </span>margin: 0;</p>
-<p class="p1"><span class="Apple-converted-space">            </span>padding: 0;</p>
-<p class="p1"><span class="Apple-converted-space">            </span>display: flex;</p>
-<p class="p1"><span class="Apple-converted-space">            </span>justify-content: center;</p>
-<p class="p1"><span class="Apple-converted-space">            </span>align-items: center;</p>
-<p class="p1"><span class="Apple-converted-space">            </span>height: 100vh;</p>
-<p class="p1"><span class="Apple-converted-space">            </span>background-color: #000; /* 검은색 배경 */</p>
-<p class="p1"><span class="Apple-converted-space">            </span>font-family: Arial, sans-serif;</p>
-<p class="p1"><span class="Apple-converted-space">        </span>}</p>
-<p class="p2"><br></p>
-<p class="p1"><span class="Apple-converted-space">        </span>/* 채팅창 스타일 */</p>
-<p class="p1"><span class="Apple-converted-space">        </span>#chat-container {</p>
-<p class="p1"><span class="Apple-converted-space">            </span>width: 350px;</p>
-<p class="p1"><span class="Apple-converted-space">            </span>height: 500px;</p>
-<p class="p1"><span class="Apple-converted-space">            </span>background-color: #fff; /* 하얀색 배경 */</p>
-<p class="p1"><span class="Apple-converted-space">            </span>border-radius: 15px;</p>
-<p class="p1"><span class="Apple-converted-space">            </span>padding: 15px;</p>
-<p class="p1"><span class="Apple-converted-space">            </span>display: flex;</p>
-<p class="p1"><span class="Apple-converted-space">            </span>flex-direction: column;</p>
-<p class="p1"><span class="Apple-converted-space">            </span>box-shadow: 0 0 10px rgba(255, 255, 255, 0.2);</p>
-<p class="p1"><span class="Apple-converted-space">            </span>overflow-y: auto;</p>
-<p class="p1"><span class="Apple-converted-space">        </span>}</p>
-<p class="p2"><br></p>
-<p class="p1"><span class="Apple-converted-space">        </span>/* 메시지 스타일 */</p>
-<p class="p1"><span class="Apple-converted-space">        </span>.message {</p>
-<p class="p1"><span class="Apple-converted-space">            </span>max-width: 80%;</p>
-<p class="p1"><span class="Apple-converted-space">            </span>margin: 5px;</p>
-<p class="p1"><span class="Apple-converted-space">            </span>padding: 10px;</p>
-<p class="p1"><span class="Apple-converted-space">            </span>border-radius: 10px;</p>
-<p class="p1"><span class="Apple-converted-space">            </span>word-wrap: break-word;</p>
-<p class="p1"><span class="Apple-converted-space">            </span>animation: fadeIn 1s ease;</p>
-<p class="p1"><span class="Apple-converted-space">        </span>}</p>
-<p class="p2"><br></p>
-<p class="p1"><span class="Apple-converted-space">        </span>/* 보낸 메시지 스타일 */</p>
-<p class="p1"><span class="Apple-converted-space">        </span>.user {</p>
-<p class="p1"><span class="Apple-converted-space">            </span>align-self: flex-end;</p>
-<p class="p1"><span class="Apple-converted-space">            </span>background-color: #007aff; /* 파란색 */</p>
-<p class="p1"><span class="Apple-converted-space">            </span>color: white;</p>
-<p class="p1"><span class="Apple-converted-space">        </span>}</p>
-<p class="p2"><br></p>
-<p class="p1"><span class="Apple-converted-space">        </span>/* 받은 메시지 스타일 */</p>
-<p class="p1"><span class="Apple-converted-space">        </span>.bot {</p>
-<p class="p1"><span class="Apple-converted-space">            </span>align-self: flex-start;</p>
-<p class="p1"><span class="Apple-converted-space">            </span>background-color: #e5e5ea; /* 회색 */</p>
-<p class="p1"><span class="Apple-converted-space">            </span>color: black;</p>
-<p class="p1"><span class="Apple-converted-space">        </span>}</p>
-<p class="p2"><br></p>
-<p class="p1"><span class="Apple-converted-space">        </span>/* 메시지 애니메이션 */</p>
-<p class="p1"><span class="Apple-converted-space">        </span>@keyframes fadeIn {</p>
-<p class="p1"><span class="Apple-converted-space">            </span>from {</p>
-<p class="p1"><span class="Apple-converted-space">                </span>opacity: 0;</p>
-<p class="p1"><span class="Apple-converted-space">                </span>transform: translateY(20px);</p>
-<p class="p1"><span class="Apple-converted-space">            </span>}</p>
-<p class="p1"><span class="Apple-converted-space">            </span>to {</p>
-<p class="p1"><span class="Apple-converted-space">                </span>opacity: 1;</p>
-<p class="p1"><span class="Apple-converted-space">                </span>transform: translateY(0);</p>
-<p class="p1"><span class="Apple-converted-space">            </span>}</p>
-<p class="p1"><span class="Apple-converted-space">        </span>}</p>
-<p class="p1"><span class="Apple-converted-space">    </span>&lt;/style&gt;</p>
-<p class="p1">&lt;/head&gt;</p>
-<p class="p1">&lt;body&gt;</p>
-<p class="p1"><span class="Apple-converted-space">    </span>&lt;div id="chat-container"&gt;</p>
-<p class="p1"><span class="Apple-converted-space">        </span>&lt;!-- 채팅 메시지 --&gt;</p>
-<p class="p1"><span class="Apple-converted-space">        </span>&lt;div class="message bot"&gt;Hi~ did she say anything?&lt;/div&gt;</p>
-<p class="p1"><span class="Apple-converted-space">        </span>&lt;div class="message user"&gt;Hi! Oh, she didn’t contact you today?&lt;/div&gt;</p>
-<p class="p1"><span class="Apple-converted-space">        </span>&lt;div class="message bot"&gt;No, she just transferred the money to me&lt;/div&gt;</p>
-<p class="p1"><span class="Apple-converted-space">        </span>&lt;div class="message user"&gt;I’ve got an answer, but it was just about the table...&lt;/div&gt;</p>
-<p class="p1"><span class="Apple-converted-space">        </span>&lt;div class="message bot"&gt;Okay I got it. Thank you so much!&lt;/div&gt;</p>
-<p class="p1"><span class="Apple-converted-space">        </span>&lt;div class="message user"&gt;If you want, I can tell Yun to reply to WeChat!&lt;/div&gt;</p>
-<p class="p1"><span class="Apple-converted-space">        </span>&lt;div class="message bot"&gt;You’re so nice 😊&lt;/div&gt;</p>
-<p class="p1"><span class="Apple-converted-space">    </span>&lt;/div&gt;</p>
-<p class="p1">&lt;/body&gt;</p>
-<p class="p1">&lt;/html&gt;</p>
-</body>
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Animated Chat</title>
+    <style>
+      body {
+        margin: 0;
+        padding: 0;
+        justify-content: center;
+        align-items: center;
+        height: 100vh;
+        background-color: #000; /* 검은색 배경 */
+        font-family: Arial, sans-serif;
+      }
+
+      /* 채팅 박스 스타일 */
+      #chat-container {
+        width: 350px;
+        background-color: #fff; /* 하얀색 배경 */
+        border-radius: 15px;
+        padding: 15px;
+        box-shadow: 0 10px rgba(255, 255, 255, 0.2);
+        overflow-y: auto;
+      }
+
+      /* 사용자 메시지 스타일 */
+      .user {
+        align-self: flex-end;
+        background-color: #007aff; /* 파란색 */
+        color: white;
+      }
+
+      /* 봇 메시지 스타일 */
+      .bot {
+        align-self: flex-start;
+        background-color: #f5f5f5; /* 회색 */
+        color: black;
+      }
+
+      /* 메시지 애니메이션 */
+      @keyframes fadeIn {
+        from {
+          opacity: 0;
+          transform: translateY(20px);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div id="chat-container">
+      <!-- 채팅 메시지 -->
+      <div class="message bot">Hi! Did she say anything?</div>
+      <div class="message user">Oh, she didn’t contact you today?</div>
+      <div class="message bot">No, she just transferred the money to me.</div>
+      <div class="message user">Oh great, but it was about the table...</div>
+      <div class="message bot">Okay! Thank you so much.</div>
+      <div class="message user">Let me know if you want.</div>
+      <div class="message bot">You’re so nice.</div>
+    </div>
+  </body>
 </html>
