@@ -24,8 +24,8 @@
       flex-direction: column-reverse;
       padding: 10px;
       box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2);
-      overflow-y: auto;
       position: relative;
+      overflow-y: hidden;
     }
 
     .message {
@@ -64,6 +64,14 @@
       display: flex;
       gap: 4px;
       margin-bottom: 10px;
+    }
+
+    .typing-bubble.left {
+      align-self: flex-start;
+    }
+
+    .typing-bubble.right {
+      align-self: flex-end;
     }
 
     .typing-bubble span {
@@ -120,7 +128,7 @@
 </head>
 <body>
   <div id="chat-container">
-    <div class="typing-bubble" style="align-self: flex-end;">
+    <div id="typing-bubble" class="typing-bubble left" style="display: none;">
       <span></span><span></span><span></span>
     </div>
     <div id="typing-box">
@@ -141,7 +149,8 @@
     ];
 
     const chatContainer = document.getElementById('chat-container');
-    const typingBubble = document.querySelector('.typing-bubble');
+    const typingBubble = document.getElementById('typing-bubble');
+    const chatInput = document.getElementById('chat-input');
 
     function addMessage(text, side) {
       const message = document.createElement('div');
@@ -154,12 +163,25 @@
     let i = 0;
     function displayMessages() {
       if (i < messages.length) {
-        typingBubble.style.display = 'flex'; // Show typing bubble
-        setTimeout(() => {
-          addMessage(messages[i].text, messages[i].side);
-          i++;
-          displayMessages();
-        }, 1500);
+        // Typing bubble alignment
+        typingBubble.className = `typing-bubble ${messages[i].side}`;
+        typingBubble.style.display = 'flex';
+
+        // Typing effect
+        let j = 0;
+        chatInput.textContent = "";
+        const typingInterval = setInterval(() => {
+          chatInput.textContent += messages[i].text[j];
+          j++;
+          if (j === messages[i].text.length) {
+            clearInterval(typingInterval);
+            setTimeout(() => {
+              addMessage(messages[i].text, messages[i].side);
+              i++;
+              displayMessages();
+            }, 500);
+          }
+        }, 50);
       }
     }
 
