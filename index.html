@@ -3,85 +3,129 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Animated Chat</title>
+  <title>iMessage Style Chat</title>
   <style>
-    /* 기본 스타일 설정 */
     body {
+      background-color: black;
+      font-family: Arial, sans-serif;
       margin: 0;
-      padding: 0;
-      background-color: black; /* 배경 검은색 */
       display: flex;
       justify-content: center;
       align-items: center;
       height: 100vh;
-      font-family: Arial, sans-serif;
+      overflow: hidden;
     }
 
     #chat-container {
-      background-color: white; /* 흰색 창 */
-      width: 400px;
-      height: auto;
-      padding: 10px;
-      border-radius: 10px;
+      background-color: white;
+      width: 350px;
+      height: 600px;
       display: flex;
-      flex-direction: column;
-    }
-
-    /* 말풍선 스타일 */
-    .message {
-      max-width: 80%;
-      margin: 10px;
+      flex-direction: column-reverse; /* 메시지가 아래에서 위로 쌓임 */
+      border-radius: 15px;
+      overflow-y: hidden;
       padding: 10px;
-      border-radius: 10px;
-      position: relative;
-      line-height: 1.4;
+      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
     }
 
-    /* 왼쪽 말풍선 (회색) */
+    .message {
+      margin: 8px;
+      max-width: 70%;
+      padding: 8px 12px;
+      border-radius: 15px;
+      position: relative;
+      animation: fadeIn 0.5s ease-out;
+    }
+
+    /* 회색 메시지 (왼쪽) */
     .message.left {
-      background-color: #E5E5EA;
+      background-color: #e5e5ea;
       color: black;
-      align-self: flex-start;
+      margin-right: auto;
     }
 
     .message.left::after {
-      content: '';
+      content: "";
       position: absolute;
-      top: 50%;
-      left: -10px;
+      bottom: 0;
+      left: -8px;
+      width: 0;
+      height: 0;
       border: 10px solid transparent;
-      border-right-color: #E5E5EA;
-      transform: translateY(-50%);
+      border-right-color: #e5e5ea;
+      border-left: 0;
+      margin-bottom: -2px;
     }
 
-    /* 오른쪽 말풍선 (파란색) */
+    /* 파란 메시지 (오른쪽) */
     .message.right {
-      background-color: #007AFF;
+      background-color: #007aff;
       color: white;
-      align-self: flex-end;
+      margin-left: auto;
     }
 
     .message.right::after {
-      content: '';
+      content: "";
       position: absolute;
-      top: 50%;
-      right: -10px;
+      bottom: 0;
+      right: -8px;
+      width: 0;
+      height: 0;
       border: 10px solid transparent;
-      border-left-color: #007AFF;
-      transform: translateY(-50%);
+      border-left-color: #007aff;
+      border-right: 0;
+      margin-bottom: -2px;
     }
 
-    /* 숨겨진 상태 */
-    .hidden {
-      display: none;
+    /* 입력창 스타일 */
+    #input-container {
+      display: flex;
+      align-items: center;
+      border-top: 1px solid #ddd;
+      padding: 10px;
+      position: relative;
+    }
+
+    #input-box {
+      width: 100%;
+      border: none;
+      outline: none;
+      font-size: 16px;
+      padding: 8px;
+    }
+
+    /* 깜빡이는 커서 */
+    #cursor {
+      width: 2px;
+      height: 20px;
+      background-color: black;
+      margin-left: 5px;
+      animation: blink 1s infinite;
+    }
+
+    @keyframes blink {
+      0%, 50% { opacity: 1; }
+      51%, 100% { opacity: 0; }
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(10px); }
+      to { opacity: 1; transform: translateY(0); }
     }
   </style>
 </head>
 <body>
-  <div id="chat-container"></div>
+  <div id="chat-container">
+    <!-- 채팅 메시지들이 추가될 영역 -->
+  </div>
+
+  <!-- 입력창 -->
+  <div id="input-container">
+    <span id="input-box">Typing...</span>
+    <div id="cursor"></div>
+  </div>
 
   <script>
-    // 채팅 메시지 배열 (회색, 파란색 번갈아가며)
     const messages = [
       { text: "Hi! Did she say anything?", side: "left" },
       { text: "Oh, she didn't contact you today?", side: "right" },
@@ -89,28 +133,25 @@
       { text: "Oh great, but I was about the table...", side: "right" },
       { text: "Okay! Thank you so much.", side: "left" },
       { text: "Let me know if you want.", side: "right" },
-      { text: "You're so nice.", side: "left" }
+      { text: "You're so nice.", side: "left" },
     ];
 
-    // DOM 요소
-    const chatContainer = document.getElementById('chat-container');
+    const container = document.getElementById("chat-container");
 
-    // 메시지 순차적으로 표시
-    let index = 0;
-    function showMessage() {
-      if (index < messages.length) {
-        const msg = messages[index];
-        const messageElement = document.createElement('div');
-        messageElement.classList.add('message', msg.side);
-        messageElement.textContent = msg.text;
-        chatContainer.appendChild(messageElement);
-        index++;
-        setTimeout(showMessage, 500); // 0.5초 간격으로 표시
-      }
+    function showMessage(index) {
+      if (index >= messages.length) return;
+
+      const message = document.createElement("div");
+      message.classList.add("message", messages[index].side);
+      message.innerText = messages[index].text;
+
+      container.appendChild(message);
+
+      setTimeout(() => showMessage(index + 1), 1000);
     }
 
-    // 메시지 시작
-    showMessage();
+    // 초기 메시지 시작
+    showMessage(0);
   </script>
 </body>
 </html>
