@@ -24,8 +24,8 @@
       flex-direction: column-reverse;
       padding: 10px;
       box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2);
+      overflow-y: auto;
       position: relative;
-      overflow-y: hidden;
     }
 
     .message {
@@ -63,54 +63,53 @@
     .typing-bubble {
       display: flex;
       gap: 4px;
-      margin-bottom: 10px;
+      align-items: center;
+      background-color: #e5e5ea;
+      border-radius: 15px;
+      padding: 8px 12px;
+      width: fit-content;
+      margin: 5px;
     }
 
     .typing-bubble.left {
       align-self: flex-start;
+      margin-bottom: 10px; /* 위치 분리 */
     }
-
     .typing-bubble.right {
       align-self: flex-end;
+      margin-bottom: 10px; /* 위치 분리 */
     }
 
-    .typing-bubble span {
-      display: inline-block;
+    .dot {
       width: 6px;
       height: 6px;
-      background-color: #bbb;
+      background-color: #b0b0b0;
       border-radius: 50%;
       animation: bounce 1.5s infinite;
     }
 
-    .typing-bubble span:nth-child(2) {
-      animation-delay: 0.2s;
-    }
-    .typing-bubble span:nth-child(3) {
-      animation-delay: 0.4s;
-    }
+    .dot:nth-child(2) { animation-delay: 0.2s; }
+    .dot:nth-child(3) { animation-delay: 0.4s; }
 
     @keyframes bounce {
-      0%, 100% {
-        transform: translateY(0);
-      }
-      50% {
-        transform: translateY(-5px);
-      }
+      0%, 100% { opacity: 0.3; }
+      50% { opacity: 1; }
     }
 
     #typing-box {
+      display: flex;
+      border-top: 1px solid #ddd;
+      padding: 10px;
+      align-items: center;
       position: absolute;
       bottom: 0;
-      left: 0;
-      width: 100%;
-      box-sizing: border-box;
-      border-top: 1px solid #ddd;
-      background-color: #fff;
-      padding: 8px 10px;
-      display: flex;
-      align-items: center;
-      gap: 5px;
+      width: calc(100% - 20px);
+      background: #fff;
+    }
+
+    #typing-box span {
+      display: inline-block;
+      white-space: pre;
     }
 
     #cursor {
@@ -128,12 +127,8 @@
 </head>
 <body>
   <div id="chat-container">
-    <div id="typing-bubble" class="typing-bubble left" style="display: none;">
-      <span></span><span></span><span></span>
-    </div>
     <div id="typing-box">
-      <span id="chat-input">Type here...</span>
-      <div id="cursor"></div>
+      <span id="typing-text"></span><div id="cursor"></div>
     </div>
   </div>
 
@@ -144,45 +139,72 @@
       { text: "No, she just transferred the money to me.", side: "left" },
       { text: "Oh great, but I was about the table...", side: "right" },
       { text: "Okay! Thank you so much.", side: "left" },
-      { text: "Let me know if you want.", side: "right" },
-      { text: "You're so nice.", side: "left" }
+      { text: "Let me know if you want.", side: "right" }
     ];
 
-    const chatContainer = document.getElementById('chat-container');
-    const typingBubble = document.getElementById('typing-bubble');
-    const chatInput = document.getElementById('chat-input');
+    const chatContainer = document.getElementById("chat-container");
+    const typingText = document.getElementById("typing-text");
 
-    function addMessage(text, side) {
-      const message = document.createElement('div');
-      message.classList.add('message', side);
-      message.textContent = text;
-      typingBubble.style.display = 'none'; // Hide typing bubble before showing message
-      chatContainer.insertBefore(message, typingBubble);
+    function createTypingBubble(side) {
+      const bubble = document.createElement("div");
+      bubble.className = `typing-bubble ${side}`;
+      bubble.innerHTML = `
+        <div class="dot"></div>
+        <div class="dot"></div>
+        <div class="dot"></div>
+      `;
+      return bubble;
     }
 
-    let i = 0;
-    function displayMessages() {
-      if (i < messages.length) {
-        // Typing bubble alignment
-        typingBubble.className = `typing-bubble ${messages[i].side}`;
-        typingBubble.style.display = 'flex';
+    function typeInChat(text, callback) {
+      let i = 0;
+      typingText.textContent = "";
+      const typingInterval = setInterval(() => {
+        typingText.textContent += text[i];
+        i++;
+        if (i === text.length) {
+          clearInterval(typingInterval);
+          callback();
+        }
+      }, 50);
+    }
 
-        // Typing effect
-        let j = 0;
-        chatInput.textContent = "";
-        const typingInterval = setInterval(() => {
-          chatInput.textContent += messages[i].text[j];
-          j++;
-          if (j === messages[i].text.length) {
-            clearInterval(typingInterval);
-            setTimeout(() => {
-              addMessage(messages[i].text, messages[i].side);
-              i++;
-              displayMessages();
-            }, 500);
-          }
-        }, 50);
+    function addMessageToChat(text, side) {
+      const message = document.createElement("div");
+      message.classList.add("message", side);
+      message.textContent = text;
+      chatContainer.insertBefore(message, chatContainer.children[1]);
+    }
+
+    function displayMessages() {
+      let i = 0;
+
+      function showNextMessage() {
+        if (i >= messages.length) return;
+
+        const bubbleSide = messages[i].side;
+        const typingBubble = createTypingBubble(bubbleSide);
+        chatContainer.insertBefore(typingBubble, chatContainer.children[1]);
+
+        if (bubbleSide === "right") {
+          typeInChat(messages[i].text, () => {
+            chatContainer.removeChild(typingBubble);
+            addMessageToChat(messages[i].text, "right");
+            typingText.textContent = "";
+            i++;
+            setTimeout(showNextMessage, 500);
+          });
+        } else {
+          setTimeout(() => {
+            chatContainer.removeChild(typingBubble);
+            addMessageToChat(messages[i].text, "left");
+            i++;
+            setTimeout(showNextMessage, 500);
+          }, 1500);
+        }
       }
+
+      showNextMessage();
     }
 
     displayMessages();
