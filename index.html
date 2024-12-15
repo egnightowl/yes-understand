@@ -3,127 +3,92 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>iMessage Style Chat</title>
+  <title>iMessage Chat Simulation</title>
   <style>
     body {
-      background-color: black;
-      font-family: Arial, sans-serif;
       margin: 0;
+      background-color: #000;
       display: flex;
       justify-content: center;
       align-items: center;
       height: 100vh;
-      overflow: hidden;
+      font-family: Arial, sans-serif;
     }
 
     #chat-container {
-      background-color: white;
-      width: 350px;
+      width: 320px;
       height: 600px;
-      display: flex;
-      flex-direction: column-reverse; /* 아래에서 위로 쌓이기 */
+      background-color: #fff;
       border-radius: 15px;
-      overflow-y: hidden;
       padding: 10px;
-      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
-      position: relative;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column-reverse;
+      justify-content: flex-end;
+      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2);
     }
 
     .message {
-      margin: 8px;
       max-width: 70%;
+      margin: 5px 0;
       padding: 8px 12px;
       border-radius: 15px;
-      position: relative;
-      opacity: 0;
-      transform: scale(0.8);
-      animation: popIn 0.5s forwards ease-out;
-    }
-
-    @keyframes popIn {
-      0% {
-        opacity: 0;
-        transform: scale(0.8);
-      }
-      100% {
-        opacity: 1;
-        transform: scale(1);
-      }
+      animation: pop-in 0.3s ease-out;
+      word-wrap: break-word;
     }
 
     .message.left {
       background-color: #e5e5ea;
+      align-self: flex-start;
       color: black;
-      margin-right: auto;
-    }
-
-    .message.left::after {
-      content: "";
-      position: absolute;
-      bottom: 0;
-      left: -8px;
-      border: 10px solid transparent;
-      border-right-color: #e5e5ea;
-      border-left: 0;
-      margin-bottom: -2px;
     }
 
     .message.right {
       background-color: #007aff;
+      align-self: flex-end;
       color: white;
-      margin-left: auto;
     }
 
-    .message.right::after {
-      content: "";
-      position: absolute;
-      bottom: 0;
-      right: -8px;
-      border: 10px solid transparent;
-      border-left-color: #007aff;
-      border-right: 0;
-      margin-bottom: -2px;
+    @keyframes pop-in {
+      from {
+        transform: scale(0.8);
+        opacity: 0;
+      }
+      to {
+        transform: scale(1);
+        opacity: 1;
+      }
     }
 
-    #input-container {
+    #typing-box {
+      border-top: 1px solid #ddd;
+      padding: 5px 10px;
       display: flex;
       align-items: center;
-      position: absolute;
-      bottom: 0;
-      width: 350px;
-      background-color: white;
-      border-top: 1px solid #ddd;
-      border-radius: 0 0 15px 15px;
-      padding: 10px;
-    }
-
-    #input-box {
-      width: 100%;
-      border: none;
-      outline: none;
-      font-size: 16px;
-      padding: 8px;
+      justify-content: center;
+      color: #999;
     }
 
     #cursor {
       width: 2px;
-      height: 20px;
-      background-color: black;
-      margin-left: 5px;
+      height: 16px;
+      background: black;
+      margin-left: 4px;
       animation: blink 1s infinite;
     }
 
     @keyframes blink {
-      0%, 50% { opacity: 1; }
-      51%, 100% { opacity: 0; }
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0; }
     }
   </style>
 </head>
 <body>
-  <div id="chat-container"></div>
-  <div id="input-container">
-    <input id="input-box" placeholder="Type a message..." />
-    <div id="cursor"></div>
+  <div id="chat-container">
+    <div id="typing-box">
+      <span>Type here...</span>
+      <div id="cursor"></div>
+    </div>
   </div>
 
   <script>
@@ -137,20 +102,25 @@
       { text: "You're so nice.", side: "left" }
     ];
 
-    const container = document.getElementById("chat-container");
+    const chatContainer = document.getElementById('chat-container');
 
-    function showMessage(index) {
-      if (index >= messages.length) return;
-
-      const message = document.createElement("div");
-      message.classList.add("message", messages[index].side);
-      message.innerText = messages[index].text;
-
-      container.appendChild(message);
-      setTimeout(() => showMessage(index + 1), 1500); // 1.5초 간격
+    function addMessage(text, side) {
+      const message = document.createElement('div');
+      message.classList.add('message', side);
+      message.textContent = text;
+      chatContainer.insertBefore(message, chatContainer.firstChild);
     }
 
-    showMessage(0);
+    let i = 0;
+    function displayMessages() {
+      if (i < messages.length) {
+        addMessage(messages[i].text, messages[i].side);
+        i++;
+        setTimeout(displayMessages, 1500);
+      }
+    }
+
+    displayMessages();
   </script>
 </body>
 </html>
