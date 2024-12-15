@@ -121,9 +121,15 @@
   </style>
 </head>
 <body>
-  <div id="chat-container"></div>
-  <div id="typing-box">
-    <span id="typing-text"></span><div id="cursor"></div>
+  <div id="chat-container">
+    <div class="typing-bubble left" style="display: none;">
+      <div class="dot"></div>
+      <div class="dot"></div>
+      <div class="dot"></div>
+    </div>
+    <div id="typing-box">
+      <span id="typing-text"></span><div id="cursor"></div>
+    </div>
   </div>
 
   <script>
@@ -137,6 +143,8 @@
     ];
 
     const chatContainer = document.getElementById("chat-container");
+    const typingBubble = document.querySelector(".typing-bubble");
+    const typingText = document.getElementById("typing-text");
 
     function createTypingBubble(side) {
       const bubble = document.createElement("div");
@@ -163,11 +171,11 @@
         if (i >= messages.length) return;
 
         const currentMessage = messages[i];
-        const typingBubble = createTypingBubble(currentMessage.side);
-        chatContainer.insertBefore(typingBubble, chatContainer.firstChild);
+        const bubble = createTypingBubble(currentMessage.side);
+        chatContainer.insertBefore(bubble, chatContainer.firstChild);
 
         setTimeout(() => {
-          chatContainer.removeChild(typingBubble); // typing bubble 제거
+          chatContainer.removeChild(bubble); // typing bubble 제거
           addMessageToChat(currentMessage.text, currentMessage.side);
           i++;
           setTimeout(showNextMessage, 1500); // 다음 메시지 간격
