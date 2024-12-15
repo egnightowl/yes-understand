@@ -69,7 +69,7 @@
       border-radius: 15px;
       padding: 8px 12px;
       width: fit-content;
-      margin: 5px;
+      margin: 5px auto 10px auto; /* 중앙 정렬 */
     }
 
     .typing-bubble.left { align-self: flex-start; }
@@ -122,11 +122,6 @@
 </head>
 <body>
   <div id="chat-container">
-    <div class="typing-bubble left" style="display: none;">
-      <div class="dot"></div>
-      <div class="dot"></div>
-      <div class="dot"></div>
-    </div>
     <div id="typing-box">
       <span id="typing-text"></span><div id="cursor"></div>
     </div>
@@ -143,27 +138,24 @@
     ];
 
     const chatContainer = document.getElementById("chat-container");
-    const typingBubble = document.querySelector(".typing-bubble");
     const typingText = document.getElementById("typing-text");
+
+    function createTypingBubble(side) {
+      const bubble = document.createElement("div");
+      bubble.className = `typing-bubble ${side}`;
+      bubble.innerHTML = `
+        <div class="dot"></div>
+        <div class="dot"></div>
+        <div class="dot"></div>
+      `;
+      return bubble;
+    }
 
     function addMessageToChat(text, side) {
       const message = document.createElement("div");
       message.classList.add("message", side);
       message.textContent = text;
-      chatContainer.insertBefore(message, chatContainer.firstChild);
-    }
-
-    function typeInTypingBox(text, callback) {
-      let i = 0;
-      typingText.textContent = ""; // Clear typing box
-      const typingInterval = setInterval(() => {
-        typingText.textContent += text[i];
-        i++;
-        if (i === text.length) {
-          clearInterval(typingInterval);
-          callback();
-        }
-      }, 50); // 타이핑 속도
+      chatContainer.appendChild(message); // 메시지를 아래 추가
     }
 
     function displayMessages() {
@@ -173,24 +165,32 @@
         if (i >= messages.length) return;
 
         const currentMessage = messages[i];
-        typingBubble.style.display = "flex";
-        typingBubble.classList.toggle("left", currentMessage.side === "left");
-        typingBubble.classList.toggle("right", currentMessage.side === "right");
+        const bubble = createTypingBubble(currentMessage.side);
+        chatContainer.appendChild(bubble); // typing bubble이 메시지 자리에 추가
 
         if (currentMessage.side === "right") {
-          typeInTypingBox(currentMessage.text, () => {
-            typingBubble.style.display = "none"; // Hide typing bubble
-            typingText.textContent = ""; // Clear typing box after typing
-            addMessageToChat(currentMessage.text, currentMessage.side);
-            i++;
-            setTimeout(showNextMessage, 1500);
-          });
+          let j = 0;
+          typingText.textContent = "";
+          const typingInterval = setInterval(() => {
+            typingText.textContent += currentMessage.text[j];
+            j++;
+            if (j === currentMessage.text.length) {
+              clearInterval(typingInterval);
+              setTimeout(() => {
+                chatContainer.removeChild(bubble); // typing bubble 제거
+                addMessageToChat(currentMessage.text, currentMessage.side);
+                typingText.textContent = "";
+                i++;
+                showNextMessage();
+              }, 1000);
+            }
+          }, 50); // 타이핑 속도
         } else {
           setTimeout(() => {
-            typingBubble.style.display = "none";
+            chatContainer.removeChild(bubble); // typing bubble 제거
             addMessageToChat(currentMessage.text, currentMessage.side);
             i++;
-            setTimeout(showNextMessage, 1500);
+            showNextMessage();
           }, 1500);
         }
       }
