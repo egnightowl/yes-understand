@@ -146,22 +146,24 @@
     const typingBubble = document.querySelector(".typing-bubble");
     const typingText = document.getElementById("typing-text");
 
-    function createTypingBubble(side) {
-      const bubble = document.createElement("div");
-      bubble.className = `typing-bubble ${side}`;
-      bubble.innerHTML = `
-        <div class="dot"></div>
-        <div class="dot"></div>
-        <div class="dot"></div>
-      `;
-      return bubble;
-    }
-
     function addMessageToChat(text, side) {
       const message = document.createElement("div");
       message.classList.add("message", side);
       message.textContent = text;
-      chatContainer.insertBefore(message, chatContainer.firstChild); // 메시지를 아래 추가
+      chatContainer.insertBefore(message, chatContainer.firstChild);
+    }
+
+    function typeInTypingBox(text, callback) {
+      let i = 0;
+      typingText.textContent = ""; // Clear typing box
+      const typingInterval = setInterval(() => {
+        typingText.textContent += text[i];
+        i++;
+        if (i === text.length) {
+          clearInterval(typingInterval);
+          callback();
+        }
+      }, 50); // 타이핑 속도
     }
 
     function displayMessages() {
@@ -171,15 +173,26 @@
         if (i >= messages.length) return;
 
         const currentMessage = messages[i];
-        const bubble = createTypingBubble(currentMessage.side);
-        chatContainer.insertBefore(bubble, chatContainer.firstChild);
+        typingBubble.style.display = "flex";
+        typingBubble.classList.toggle("left", currentMessage.side === "left");
+        typingBubble.classList.toggle("right", currentMessage.side === "right");
 
-        setTimeout(() => {
-          chatContainer.removeChild(bubble); // typing bubble 제거
-          addMessageToChat(currentMessage.text, currentMessage.side);
-          i++;
-          setTimeout(showNextMessage, 1500); // 다음 메시지 간격
-        }, 1500);
+        if (currentMessage.side === "right") {
+          typeInTypingBox(currentMessage.text, () => {
+            typingBubble.style.display = "none"; // Hide typing bubble
+            typingText.textContent = ""; // Clear typing box after typing
+            addMessageToChat(currentMessage.text, currentMessage.side);
+            i++;
+            setTimeout(showNextMessage, 1500);
+          });
+        } else {
+          setTimeout(() => {
+            typingBubble.style.display = "none";
+            addMessageToChat(currentMessage.text, currentMessage.side);
+            i++;
+            setTimeout(showNextMessage, 1500);
+          }, 1500);
+        }
       }
 
       showNextMessage();
