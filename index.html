@@ -21,7 +21,7 @@
       background-color: #fff;
       border-radius: 15px;
       display: flex;
-      flex-direction: column; /* 순서대로 위에서 아래로 */
+      flex-direction: column-reverse; /* 아래에서 위로 쌓임 */
       padding: 10px;
       padding-bottom: 50px; /* typing-box 공간 */
       box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2);
@@ -168,7 +168,7 @@
       const message = document.createElement("div");
       message.classList.add("message", side);
       message.textContent = text;
-      chatContainer.appendChild(message); /* 아래에 추가 */
+      chatContainer.insertBefore(message, chatContainer.firstChild);
     }
 
     function displayMessages() {
@@ -179,7 +179,7 @@
 
         const bubbleSide = messages[i].side;
         const typingBubble = createTypingBubble(bubbleSide);
-        chatContainer.appendChild(typingBubble); /* typing bubble 추가 */
+        chatContainer.insertBefore(typingBubble, chatContainer.firstChild);
 
         if (bubbleSide === "right") {
           typeInChat(messages[i].text, () => {
