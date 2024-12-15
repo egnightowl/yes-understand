@@ -21,9 +21,9 @@
       background-color: #fff;
       border-radius: 15px;
       display: flex;
-      flex-direction: column-reverse;
+      flex-direction: column; /* 순서대로 위에서 아래로 */
       padding: 10px;
-      padding-bottom: 50px; /* typing-box 공간 확보 */
+      padding-bottom: 50px; /* typing-box 공간 */
       box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2);
       overflow-y: auto;
       position: relative;
@@ -98,8 +98,8 @@
       align-items: center;
       width: calc(100% - 20px);
       background: #fff;
-      position: relative;
-      margin-top: auto; /* 메시지 영역 아래에 붙이기 */
+      position: absolute;
+      bottom: 0;
     }
 
     #typing-box span {
@@ -168,7 +168,7 @@
       const message = document.createElement("div");
       message.classList.add("message", side);
       message.textContent = text;
-      chatContainer.insertBefore(message, chatContainer.children[1]);
+      chatContainer.appendChild(message); /* 아래에 추가 */
     }
 
     function displayMessages() {
@@ -179,7 +179,7 @@
 
         const bubbleSide = messages[i].side;
         const typingBubble = createTypingBubble(bubbleSide);
-        chatContainer.insertBefore(typingBubble, chatContainer.children[1]);
+        chatContainer.appendChild(typingBubble); /* typing bubble 추가 */
 
         if (bubbleSide === "right") {
           typeInChat(messages[i].text, () => {
