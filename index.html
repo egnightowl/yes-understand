@@ -60,13 +60,22 @@
       }
     }
 
-    #typing-box {
-      border-top: 1px solid #ddd;
-      padding: 10px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      background-color: #fff;
+  #typing-box {
+  position: absolute; /* 위치를 화면 하단에 고정 */
+  bottom: 10px;       /* 하단 여백 */
+  left: 50%;          /* 가로 중앙 정렬 */
+  transform: translateX(-50%);
+  width: 320px;
+  border: 1px solid #ddd;
+  background-color: #fff;
+  border-radius: 20px;
+  padding: 8px 10px;
+  display: flex;
+  align-items: center;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+  color: #999;
+  font-size: 14px;
+}
     }
 
     #cursor {
@@ -101,7 +110,19 @@
       { text: "You're so nice.", side: "left" }
     ];
 
-    const chatContainer = document.getElementById('chat-container');
+    const #chat-container {
+  position: relative; /* 채팅창이 컨테이너 안에서 위치하도록 설정 */
+  width: 320px;
+  height: 600px;
+  background-color: #fff;
+  border-radius: 15px;
+  padding: 10px;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2);
+  overflow-y: auto;
+}
 
     function addMessage(text, side) {
       const message = document.createElement('div');
