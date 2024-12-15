@@ -25,6 +25,7 @@
       padding: 10px;
       box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2);
       overflow-y: auto;
+      position: relative;
     }
 
     .message {
@@ -59,15 +60,16 @@
       }
     }
 
-    .typing {
+    .typing-bubble {
       display: flex;
       gap: 4px;
       align-items: center;
       background-color: #e5e5ea;
-      width: fit-content;
       border-radius: 15px;
       padding: 8px 12px;
+      width: fit-content;
       margin: 5px;
+      align-self: flex-end;
     }
 
     .dot {
@@ -91,20 +93,23 @@
       border-top: 1px solid #ddd;
       padding: 10px;
       align-items: center;
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      width: 100%;
+      box-sizing: border-box;
+      background: #fff;
     }
 
-    #typing-box input {
-      border: none;
-      outline: none;
-      width: 100%;
-      font-size: 14px;
+    #typing-box span {
+      display: inline-block;
+      white-space: pre;
     }
 
     #cursor {
       width: 2px;
       height: 16px;
       background: black;
-      margin-left: 4px;
       animation: blink 1s infinite;
     }
 
@@ -117,8 +122,7 @@
 <body>
   <div id="chat-container"></div>
   <div id="typing-box">
-    <input type="text" placeholder="Type here...">
-    <div id="cursor"></div>
+    <span id="typing-text"></span><div id="cursor"></div>
   </div>
 
   <script>
@@ -132,26 +136,24 @@
     ];
 
     const chatContainer = document.getElementById("chat-container");
+    const typingText = document.getElementById("typing-text");
 
-    function createTypingIndicator() {
-      const typingDiv = document.createElement("div");
-      typingDiv.className = "typing";
-      typingDiv.innerHTML = `
+    function createTypingBubble() {
+      const bubble = document.createElement("div");
+      bubble.className = "typing-bubble";
+      bubble.innerHTML = `
         <div class="dot"></div>
         <div class="dot"></div>
         <div class="dot"></div>
       `;
-      return typingDiv;
+      return bubble;
     }
 
-    function typeMessage(text, side, callback) {
+    function typeInChat(text, callback) {
       let i = 0;
-      const messageDiv = document.createElement("div");
-      messageDiv.className = `message ${side}`;
-      chatContainer.prepend(messageDiv);
-
+      typingText.textContent = "";
       const typingInterval = setInterval(() => {
-        messageDiv.textContent += text[i];
+        typingText.textContent += text[i];
         i++;
         if (i === text.length) {
           clearInterval(typingInterval);
@@ -160,22 +162,35 @@
       }, 50);
     }
 
+    function addMessageToChat(text, side) {
+      const message = document.createElement("div");
+      message.classList.add("message", side);
+      message.textContent = text;
+      chatContainer.prepend(message);
+    }
+
     function displayMessages() {
       let i = 0;
 
       function showNextMessage() {
         if (i >= messages.length) return;
 
-        const typingIndicator = createTypingIndicator();
-        chatContainer.prepend(typingIndicator);
+        if (messages[i].side === "right") {
+          const typingBubble = createTypingBubble();
+          chatContainer.prepend(typingBubble);
 
-        setTimeout(() => {
-          chatContainer.removeChild(typingIndicator);
-          typeMessage(messages[i].text, messages[i].side, () => {
+          typeInChat(messages[i].text, () => {
+            chatContainer.removeChild(typingBubble);
+            addMessageToChat(messages[i].text, "right");
+            typingText.textContent = "";
             i++;
             setTimeout(showNextMessage, 500);
           });
-        }, 1500);
+        } else {
+          addMessageToChat(messages[i].text, "left");
+          i++;
+          setTimeout(showNextMessage, 1500);
+        }
       }
 
       showNextMessage();
