@@ -21,9 +21,9 @@
       background-color: #fff;
       border-radius: 15px;
       padding: 10px;
-      overflow: hidden;
+      overflow-y: auto;
       display: flex;
-      flex-direction: column-reverse;
+      flex-direction: column; /* 메시지 순서대로 표시 */
       justify-content: flex-end;
       box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2);
     }
@@ -62,11 +62,11 @@
 
     #typing-box {
       border-top: 1px solid #ddd;
-      padding: 5px 10px;
+      padding: 10px;
       display: flex;
       align-items: center;
       justify-content: center;
-      color: #999;
+      background-color: #fff;
     }
 
     #cursor {
@@ -84,11 +84,10 @@
   </style>
 </head>
 <body>
-  <div id="chat-container">
-    <div id="typing-box">
-      <span>Type here...</span>
-      <div id="cursor"></div>
-    </div>
+  <div id="chat-container"></div>
+  <div id="typing-box">
+    <span>Type here...</span>
+    <div id="cursor"></div>
   </div>
 
   <script>
@@ -108,7 +107,8 @@
       const message = document.createElement('div');
       message.classList.add('message', side);
       message.textContent = text;
-      chatContainer.insertBefore(message, chatContainer.firstChild);
+      chatContainer.appendChild(message); // 메시지를 순서대로 추가
+      chatContainer.scrollTop = chatContainer.scrollHeight; // 스크롤을 맨 아래로 이동
     }
 
     let i = 0;
@@ -116,7 +116,7 @@
       if (i < messages.length) {
         addMessage(messages[i].text, messages[i].side);
         i++;
-        setTimeout(displayMessages, 1500);
+        setTimeout(displayMessages, 1500); // 1.5초 간격
       }
     }
 
