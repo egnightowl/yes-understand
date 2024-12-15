@@ -23,6 +23,7 @@
       display: flex;
       flex-direction: column-reverse; /* 아래에서 위로 쌓임 */
       padding: 10px;
+      padding-bottom: 50px; /* typing-box 공간 */
       box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2);
       overflow-y: auto;
       position: relative;
@@ -68,16 +69,11 @@
       border-radius: 15px;
       padding: 8px 12px;
       width: fit-content;
-      position: absolute; /* 위치 고정 */
-      bottom: 50px; /* typing box 바로 위 */
-      left: 10px;
-      z-index: 1; /* 다른 요소보다 위에 표시 */
+      margin: 5px;
     }
 
-    .typing-bubble.right {
-      left: auto;
-      right: 10px;
-    }
+    .typing-bubble.left { align-self: flex-start; }
+    .typing-bubble.right { align-self: flex-end; }
 
     .dot {
       width: 6px;
@@ -125,15 +121,9 @@
   </style>
 </head>
 <body>
-  <div id="chat-container">
-    <div class="typing-bubble left" style="display: none;">
-      <div class="dot"></div>
-      <div class="dot"></div>
-      <div class="dot"></div>
-    </div>
-    <div id="typing-box">
-      <span id="typing-text"></span><div id="cursor"></div>
-    </div>
+  <div id="chat-container"></div>
+  <div id="typing-box">
+    <span id="typing-text"></span><div id="cursor"></div>
   </div>
 
   <script>
@@ -147,14 +137,23 @@
     ];
 
     const chatContainer = document.getElementById("chat-container");
-    const typingBubble = document.querySelector(".typing-bubble");
-    const typingText = document.getElementById("typing-text");
+
+    function createTypingBubble(side) {
+      const bubble = document.createElement("div");
+      bubble.className = `typing-bubble ${side}`;
+      bubble.innerHTML = `
+        <div class="dot"></div>
+        <div class="dot"></div>
+        <div class="dot"></div>
+      `;
+      return bubble;
+    }
 
     function addMessageToChat(text, side) {
       const message = document.createElement("div");
       message.classList.add("message", side);
       message.textContent = text;
-      chatContainer.insertBefore(message, chatContainer.firstChild);
+      chatContainer.insertBefore(message, chatContainer.firstChild); // 메시지를 아래 추가
     }
 
     function displayMessages() {
@@ -164,15 +163,14 @@
         if (i >= messages.length) return;
 
         const currentMessage = messages[i];
-        typingBubble.style.display = "flex";
-        typingBubble.classList.toggle("left", currentMessage.side === "left");
-        typingBubble.classList.toggle("right", currentMessage.side === "right");
+        const typingBubble = createTypingBubble(currentMessage.side);
+        chatContainer.insertBefore(typingBubble, chatContainer.firstChild);
 
         setTimeout(() => {
-          typingBubble.style.display = "none";
+          chatContainer.removeChild(typingBubble); // typing bubble 제거
           addMessageToChat(currentMessage.text, currentMessage.side);
           i++;
-          setTimeout(showNextMessage, 1500); // 메시지 간격
+          setTimeout(showNextMessage, 1500); // 다음 메시지 간격
         }, 1500);
       }
 
