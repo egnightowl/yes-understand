@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="ko">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -21,7 +21,7 @@
       background-color: #fff;
       border-radius: 15px;
       display: flex;
-      flex-direction: column-reverse; /* 아래에서 위로 쌓임 */
+      flex-direction: column-reverse;
       padding: 10px;
       padding-bottom: 50px; /* typing-box 공간 */
       box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2);
@@ -60,72 +60,10 @@
         opacity: 1;
       }
     }
-
-    .typing-bubble {
-      display: flex;
-      gap: 4px;
-      align-items: center;
-      background-color: #e5e5ea;
-      border-radius: 15px;
-      padding: 8px 12px;
-      width: fit-content;
-      margin: 5px;
-    }
-
-    .typing-bubble.left { align-self: flex-start; }
-    .typing-bubble.right { align-self: flex-end; }
-
-    .dot {
-      width: 6px;
-      height: 6px;
-      background-color: #b0b0b0;
-      border-radius: 50%;
-      animation: bounce 1.5s infinite;
-    }
-
-    .dot:nth-child(2) { animation-delay: 0.2s; }
-    .dot:nth-child(3) { animation-delay: 0.4s; }
-
-    @keyframes bounce {
-      0%, 100% { opacity: 0.3; }
-      50% { opacity: 1; }
-    }
-
-    #typing-box {
-      display: flex;
-      border-top: 1px solid #ddd;
-      padding: 10px;
-      align-items: center;
-      width: calc(100% - 20px);
-      background: #fff;
-      position: absolute;
-      bottom: 0;
-    }
-
-    #typing-box span {
-      display: inline-block;
-      white-space: pre;
-    }
-
-    #cursor {
-      width: 2px;
-      height: 16px;
-      background: black;
-      animation: blink 1s infinite;
-    }
-
-    @keyframes blink {
-      0%, 100% { opacity: 1; }
-      50% { opacity: 0; }
-    }
   </style>
 </head>
 <body>
-  <div id="chat-container">
-    <div id="typing-box">
-      <span id="typing-text"></span><div id="cursor"></div>
-    </div>
-  </div>
+  <div id="chat-container"></div>
 
   <script>
     const messages = [
@@ -134,39 +72,14 @@
       { text: "그동안 연락도 없고, 서운해~", side: "left" },
       { text: "미안ㅋㅋ. 어떻게 지냈어?", side: "right" },
       { text: "나야 뭐 그냥 그렇지 뭐, 회사 다니고 뭐하고 바빠. 너는?", side: "left" },
-      { text: "나 복권 당첨돼서 귀농 준비해.", side: "right" }
-      { text: "예전이랑 똑같지 뭐. 한 것도 없는데 나이만 먹었다.", side: "right" }
-      { text: "요즘 좀 힘들었어. 그래도 네 얼굴 보니 좋다.", side: "right" }
-      { text: "집에만 있었어. 오늘도 어찌나 눈치가 보이던지..", side: "right" }
+      { text: "나 복권 당첨돼서 귀농 준비해.", side: "right" },
+      { text: "예전이랑 똑같지 뭐. 한 것도 없는데 나이만 먹었다.", side: "right" },
+      { text: "요즘 좀 힘들었어. 그래도 네 얼굴 보니 좋다.", side: "right" },
+      { text: "집에만 있었어. 오늘도 어찌나 눈치가 보이던지..", side: "right" },
       { text: "매일, 매일의 구분 없이 지냈어. 세상은 변하는데 나는 그대로네.", side: "right" }
     ];
 
     const chatContainer = document.getElementById("chat-container");
-    const typingText = document.getElementById("typing-text");
-
-    function createTypingBubble(side) {
-      const bubble = document.createElement("div");
-      bubble.className = `typing-bubble ${side}`;
-      bubble.innerHTML = `
-        <div class="dot"></div>
-        <div class="dot"></div>
-        <div class="dot"></div>
-      `;
-      return bubble;
-    }
-
-    function typeInChat(text, callback) {
-      let i = 0;
-      typingText.textContent = "";
-      const typingInterval = setInterval(() => {
-        typingText.textContent += text[i];
-        i++;
-        if (i === text.length) {
-          clearInterval(typingInterval);
-          callback();
-        }
-      }, 50);
-    }
 
     function addMessageToChat(text, side) {
       const message = document.createElement("div");
@@ -181,26 +94,11 @@
       function showNextMessage() {
         if (i >= messages.length) return;
 
-        const bubbleSide = messages[i].side;
-        const typingBubble = createTypingBubble(bubbleSide);
-        chatContainer.insertBefore(typingBubble, chatContainer.firstChild);
+        const currentMessage = messages[i];
+        addMessageToChat(currentMessage.text, currentMessage.side);
 
-        if (bubbleSide === "right") {
-          typeInChat(messages[i].text, () => {
-            chatContainer.removeChild(typingBubble);
-            addMessageToChat(messages[i].text, "right");
-            typingText.textContent = "";
-            i++;
-            setTimeout(showNextMessage, 500);
-          });
-        } else {
-          setTimeout(() => {
-            chatContainer.removeChild(typingBubble);
-            addMessageToChat(messages[i].text, "left");
-            i++;
-            setTimeout(showNextMessage, 500);
-          }, 1500);
-        }
+        i++;
+        setTimeout(showNextMessage, 1500); // 메시지 간격 설정
       }
 
       showNextMessage();
