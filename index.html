@@ -21,7 +21,7 @@
       background-color: #fff;
       border-radius: 15px;
       display: flex;
-      flex-direction: column-reverse; /* 아래에서 위로 쌓임 */
+      flex-direction: column; /* 메시지를 위에서 아래로 쌓음 */
       padding: 10px;
       padding-bottom: 50px; /* typing-box 공간 */
       box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2);
@@ -69,11 +69,13 @@
       border-radius: 15px;
       padding: 8px 12px;
       width: fit-content;
-      margin: 5px;
+      margin: 10px 0;
+      position: absolute; /* 위치 고정 */
+      bottom: 60px; /* typing-box 바로 위에 배치 */
     }
 
-    .typing-bubble.left { align-self: flex-start; }
-    .typing-bubble.right { align-self: flex-end; }
+    .typing-bubble.left { left: 10px; }
+    .typing-bubble.right { right: 10px; }
 
     .dot {
       width: 6px;
@@ -150,7 +152,7 @@
       const message = document.createElement("div");
       message.classList.add("message", side);
       message.textContent = text;
-      chatContainer.insertBefore(message, chatContainer.firstChild);
+      chatContainer.appendChild(message);
     }
 
     function displayMessages() {
