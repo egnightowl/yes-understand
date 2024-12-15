@@ -21,11 +21,12 @@
       width: 350px;
       height: 600px;
       display: flex;
-      flex-direction: column-reverse; /* 메시지가 아래에서 위로 쌓임 */
+      flex-direction: column-reverse; /* 아래에서 위로 쌓이기 */
       border-radius: 15px;
       overflow-y: hidden;
       padding: 10px;
       box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+      position: relative;
     }
 
     .message {
@@ -34,10 +35,22 @@
       padding: 8px 12px;
       border-radius: 15px;
       position: relative;
-      animation: fadeIn 0.5s ease-out;
+      opacity: 0;
+      transform: scale(0.8);
+      animation: popIn 0.5s forwards ease-out;
     }
 
-    /* 회색 메시지 (왼쪽) */
+    @keyframes popIn {
+      0% {
+        opacity: 0;
+        transform: scale(0.8);
+      }
+      100% {
+        opacity: 1;
+        transform: scale(1);
+      }
+    }
+
     .message.left {
       background-color: #e5e5ea;
       color: black;
@@ -49,15 +62,12 @@
       position: absolute;
       bottom: 0;
       left: -8px;
-      width: 0;
-      height: 0;
       border: 10px solid transparent;
       border-right-color: #e5e5ea;
       border-left: 0;
       margin-bottom: -2px;
     }
 
-    /* 파란 메시지 (오른쪽) */
     .message.right {
       background-color: #007aff;
       color: white;
@@ -69,21 +79,22 @@
       position: absolute;
       bottom: 0;
       right: -8px;
-      width: 0;
-      height: 0;
       border: 10px solid transparent;
       border-left-color: #007aff;
       border-right: 0;
       margin-bottom: -2px;
     }
 
-    /* 입력창 스타일 */
     #input-container {
       display: flex;
       align-items: center;
+      position: absolute;
+      bottom: 0;
+      width: 350px;
+      background-color: white;
       border-top: 1px solid #ddd;
+      border-radius: 0 0 15px 15px;
       padding: 10px;
-      position: relative;
     }
 
     #input-box {
@@ -94,7 +105,6 @@
       padding: 8px;
     }
 
-    /* 깜빡이는 커서 */
     #cursor {
       width: 2px;
       height: 20px;
@@ -107,21 +117,12 @@
       0%, 50% { opacity: 1; }
       51%, 100% { opacity: 0; }
     }
-
-    @keyframes fadeIn {
-      from { opacity: 0; transform: translateY(10px); }
-      to { opacity: 1; transform: translateY(0); }
-    }
   </style>
 </head>
 <body>
-  <div id="chat-container">
-    <!-- 채팅 메시지들이 추가될 영역 -->
-  </div>
-
-  <!-- 입력창 -->
+  <div id="chat-container"></div>
   <div id="input-container">
-    <span id="input-box">Typing...</span>
+    <input id="input-box" placeholder="Type a message..." />
     <div id="cursor"></div>
   </div>
 
@@ -133,7 +134,7 @@
       { text: "Oh great, but I was about the table...", side: "right" },
       { text: "Okay! Thank you so much.", side: "left" },
       { text: "Let me know if you want.", side: "right" },
-      { text: "You're so nice.", side: "left" },
+      { text: "You're so nice.", side: "left" }
     ];
 
     const container = document.getElementById("chat-container");
@@ -146,11 +147,9 @@
       message.innerText = messages[index].text;
 
       container.appendChild(message);
-
-      setTimeout(() => showMessage(index + 1), 1000);
+      setTimeout(() => showMessage(index + 1), 1500); // 1.5초 간격
     }
 
-    // 초기 메시지 시작
     showMessage(0);
   </script>
 </body>
