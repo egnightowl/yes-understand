@@ -23,6 +23,7 @@
       display: flex;
       flex-direction: column-reverse;
       padding: 10px;
+      padding-bottom: 50px; /* typing-box 공간 확보 */
       box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2);
       overflow-y: auto;
       position: relative;
@@ -95,10 +96,10 @@
       border-top: 1px solid #ddd;
       padding: 10px;
       align-items: center;
-      position: absolute;
-      bottom: 0;
       width: calc(100% - 20px);
       background: #fff;
+      position: relative;
+      margin-top: auto; /* 메시지 영역 아래에 붙이기 */
     }
 
     #typing-box span {
