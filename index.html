@@ -141,12 +141,12 @@
 
     function createTypingBubble(side) {
       const bubble = document.createElement("div");
-      bubble.className = typing-bubble ${side};
-      bubble.innerHTML = 
+      bubble.className = `typing-bubble ${side}`;
+      bubble.innerHTML = `
         <div class="dot"></div>
         <div class="dot"></div>
         <div class="dot"></div>
-      ;
+      `;
       return bubble;
     }
 
