@@ -1,67 +1,116 @@
 <!DOCTYPE html>
 <html lang="en">
-  <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Animated Chat</title>
-    <style>
-      body {
-        margin: 0;
-        padding: 0;
-        justify-content: center;
-        align-items: center;
-        height: 100vh;
-        background-color: #000; /* 검은색 배경 */
-        font-family: Arial, sans-serif;
-      }
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Animated Chat</title>
+  <style>
+    /* 기본 스타일 설정 */
+    body {
+      margin: 0;
+      padding: 0;
+      background-color: black; /* 배경 검은색 */
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      font-family: Arial, sans-serif;
+    }
 
-      /* 채팅 박스 스타일 */
-      #chat-container {
-        width: 350px;
-        background-color: #fff; /* 하얀색 배경 */
-        border-radius: 15px;
-        padding: 15px;
-        box-shadow: 0 10px rgba(255, 255, 255, 0.2);
-        overflow-y: auto;
-      }
+    #chat-container {
+      background-color: white; /* 흰색 창 */
+      width: 400px;
+      height: auto;
+      padding: 10px;
+      border-radius: 10px;
+      display: flex;
+      flex-direction: column;
+    }
 
-      /* 사용자 메시지 스타일 */
-      .user {
-        align-self: flex-end;
-        background-color: #007aff; /* 파란색 */
-        color: white;
-      }
+    /* 말풍선 스타일 */
+    .message {
+      max-width: 80%;
+      margin: 10px;
+      padding: 10px;
+      border-radius: 10px;
+      position: relative;
+      line-height: 1.4;
+    }
 
-      /* 봇 메시지 스타일 */
-      .bot {
-        align-self: flex-start;
-        background-color: #f5f5f5; /* 회색 */
-        color: black;
-      }
+    /* 왼쪽 말풍선 (회색) */
+    .message.left {
+      background-color: #E5E5EA;
+      color: black;
+      align-self: flex-start;
+    }
 
-      /* 메시지 애니메이션 */
-      @keyframes fadeIn {
-        from {
-          opacity: 0;
-          transform: translateY(20px);
-        }
-        to {
-          opacity: 1;
-          transform: translateY(0);
-        }
+    .message.left::after {
+      content: '';
+      position: absolute;
+      top: 50%;
+      left: -10px;
+      border: 10px solid transparent;
+      border-right-color: #E5E5EA;
+      transform: translateY(-50%);
+    }
+
+    /* 오른쪽 말풍선 (파란색) */
+    .message.right {
+      background-color: #007AFF;
+      color: white;
+      align-self: flex-end;
+    }
+
+    .message.right::after {
+      content: '';
+      position: absolute;
+      top: 50%;
+      right: -10px;
+      border: 10px solid transparent;
+      border-left-color: #007AFF;
+      transform: translateY(-50%);
+    }
+
+    /* 숨겨진 상태 */
+    .hidden {
+      display: none;
+    }
+  </style>
+</head>
+<body>
+  <div id="chat-container"></div>
+
+  <script>
+    // 채팅 메시지 배열 (회색, 파란색 번갈아가며)
+    const messages = [
+      { text: "Hi! Did she say anything?", side: "left" },
+      { text: "Oh, she didn't contact you today?", side: "right" },
+      { text: "No, she just transferred the money to me.", side: "left" },
+      { text: "Oh great, but I was about the table...", side: "right" },
+      { text: "Okay! Thank you so much.", side: "left" },
+      { text: "Let me know if you want.", side: "right" },
+      { text: "You're so nice.", side: "left" }
+    ];
+
+    // DOM 요소
+    const chatContainer = document.getElementById('chat-container');
+
+    // 메시지 순차적으로 표시
+    let index = 0;
+    function showMessage() {
+      if (index < messages.length) {
+        const msg = messages[index];
+        const messageElement = document.createElement('div');
+        messageElement.classList.add('message', msg.side);
+        messageElement.textContent = msg.text;
+        chatContainer.appendChild(messageElement);
+        index++;
+        setTimeout(showMessage, 500); // 0.5초 간격으로 표시
       }
-    </style>
-  </head>
-  <body>
-    <div id="chat-container">
-      <!-- 채팅 메시지 -->
-      <div class="message bot">Hi! Did she say anything?</div>
-      <div class="message user">Oh, she didn’t contact you today?</div>
-      <div class="message bot">No, she just transferred the money to me.</div>
-      <div class="message user">Oh great, but it was about the table...</div>
-      <div class="message bot">Okay! Thank you so much.</div>
-      <div class="message user">Let me know if you want.</div>
-      <div class="message bot">You’re so nice.</div>
-    </div>
-  </body>
+    }
+
+    // 메시지 시작
+    showMessage();
+  </script>
+</body>
 </html>
