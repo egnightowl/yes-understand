@@ -69,8 +69,10 @@
       padding: 8px 12px;
       width: fit-content;
       margin: 5px;
-      align-self: flex-end;
     }
+
+    .typing-bubble.left { align-self: flex-start; }
+    .typing-bubble.right { align-self: flex-end; }
 
     .dot {
       width: 6px;
@@ -95,9 +97,7 @@
       align-items: center;
       position: absolute;
       bottom: 0;
-      left: 0;
-      width: 100%;
-      box-sizing: border-box;
+      width: calc(100% - 20px);
       background: #fff;
     }
 
@@ -120,9 +120,10 @@
   </style>
 </head>
 <body>
-  <div id="chat-container"></div>
-  <div id="typing-box">
-    <span id="typing-text"></span><div id="cursor"></div>
+  <div id="chat-container">
+    <div id="typing-box">
+      <span id="typing-text"></span><div id="cursor"></div>
+    </div>
   </div>
 
   <script>
@@ -138,9 +139,9 @@
     const chatContainer = document.getElementById("chat-container");
     const typingText = document.getElementById("typing-text");
 
-    function createTypingBubble() {
+    function createTypingBubble(side) {
       const bubble = document.createElement("div");
-      bubble.className = "typing-bubble";
+      bubble.className = `typing-bubble ${side}`;
       bubble.innerHTML = `
         <div class="dot"></div>
         <div class="dot"></div>
@@ -166,7 +167,7 @@
       const message = document.createElement("div");
       message.classList.add("message", side);
       message.textContent = text;
-      chatContainer.prepend(message);
+      chatContainer.insertBefore(message, chatContainer.children[1]);
     }
 
     function displayMessages() {
@@ -175,10 +176,11 @@
       function showNextMessage() {
         if (i >= messages.length) return;
 
-        if (messages[i].side === "right") {
-          const typingBubble = createTypingBubble();
-          chatContainer.prepend(typingBubble);
+        const bubbleSide = messages[i].side;
+        const typingBubble = createTypingBubble(bubbleSide);
+        chatContainer.insertBefore(typingBubble, chatContainer.children[1]);
 
+        if (bubbleSide === "right") {
           typeInChat(messages[i].text, () => {
             chatContainer.removeChild(typingBubble);
             addMessageToChat(messages[i].text, "right");
@@ -187,9 +189,12 @@
             setTimeout(showNextMessage, 500);
           });
         } else {
-          addMessageToChat(messages[i].text, "left");
-          i++;
-          setTimeout(showNextMessage, 1500);
+          setTimeout(() => {
+            chatContainer.removeChild(typingBubble);
+            addMessageToChat(messages[i].text, "left");
+            i++;
+            setTimeout(showNextMessage, 500);
+          }, 1500);
         }
       }
 
