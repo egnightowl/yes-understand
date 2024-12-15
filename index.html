@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>iMessage Chat Simulation</title>
+  <title>iMessage Simulation</title>
   <style>
     body {
       margin: 0;
@@ -16,25 +16,24 @@
     }
 
     #chat-container {
-      position: relative; /* 채팅 입력창을 고정하기 위한 기준 */
       width: 320px;
       height: 600px;
       background-color: #fff;
       border-radius: 15px;
+      display: flex;
+      flex-direction: column-reverse;
       padding: 10px;
       box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2);
-      overflow-y: auto; /* 스크롤 가능 */
-      display: flex;
-      flex-direction: column-reverse; /* 메시지를 아래에서 위로 쌓기 */
+      overflow-y: auto;
     }
 
     .message {
       max-width: 70%;
-      margin: 5px 0;
+      margin: 5px;
       padding: 8px 12px;
       border-radius: 15px;
-      animation: pop-in 0.3s ease-out;
       word-wrap: break-word;
+      animation: pop-in 0.3s ease-out;
     }
 
     .message.left {
@@ -60,19 +59,45 @@
       }
     }
 
-    #typing-box {
-      position: absolute;
-      bottom: 0;
-      left: 0;
-      right: 0;
-      height: 50px;
-      border-top: 1px solid #ddd;
-      background-color: #fff;
+    .typing {
       display: flex;
+      gap: 4px;
       align-items: center;
-      justify-content: center;
-      padding: 5px 10px;
-      color: #999;
+      background-color: #e5e5ea;
+      width: fit-content;
+      border-radius: 15px;
+      padding: 8px 12px;
+      margin: 5px;
+    }
+
+    .dot {
+      width: 6px;
+      height: 6px;
+      background-color: #b0b0b0;
+      border-radius: 50%;
+      animation: bounce 1.5s infinite;
+    }
+
+    .dot:nth-child(2) { animation-delay: 0.2s; }
+    .dot:nth-child(3) { animation-delay: 0.4s; }
+
+    @keyframes bounce {
+      0%, 100% { opacity: 0.3; }
+      50% { opacity: 1; }
+    }
+
+    #typing-box {
+      display: flex;
+      border-top: 1px solid #ddd;
+      padding: 10px;
+      align-items: center;
+    }
+
+    #typing-box input {
+      border: none;
+      outline: none;
+      width: 100%;
+      font-size: 14px;
     }
 
     #cursor {
@@ -90,12 +115,10 @@
   </style>
 </head>
 <body>
-  <div id="chat-container">
-    <!-- Typing box fixed at the bottom -->
-    <div id="typing-box">
-      <span>Type here...</span>
-      <div id="cursor"></div>
-    </div>
+  <div id="chat-container"></div>
+  <div id="typing-box">
+    <input type="text" placeholder="Type here...">
+    <div id="cursor"></div>
   </div>
 
   <script>
@@ -105,26 +128,57 @@
       { text: "No, she just transferred the money to me.", side: "left" },
       { text: "Oh great, but I was about the table...", side: "right" },
       { text: "Okay! Thank you so much.", side: "left" },
-      { text: "Let me know if you want.", side: "right" },
-      { text: "You're so nice.", side: "left" }
+      { text: "Let me know if you want.", side: "right" }
     ];
 
-    const chatContainer = document.getElementById('chat-container');
+    const chatContainer = document.getElementById("chat-container");
 
-    function addMessage(text, side) {
-      const message = document.createElement('div');
-      message.classList.add('message', side);
-      message.textContent = text;
-      chatContainer.insertBefore(message, chatContainer.firstChild);
+    function createTypingIndicator() {
+      const typingDiv = document.createElement("div");
+      typingDiv.className = "typing";
+      typingDiv.innerHTML = `
+        <div class="dot"></div>
+        <div class="dot"></div>
+        <div class="dot"></div>
+      `;
+      return typingDiv;
     }
 
-    let i = 0;
-    function displayMessages() {
-      if (i < messages.length) {
-        addMessage(messages[i].text, messages[i].side);
+    function typeMessage(text, side, callback) {
+      let i = 0;
+      const messageDiv = document.createElement("div");
+      messageDiv.className = `message ${side}`;
+      chatContainer.prepend(messageDiv);
+
+      const typingInterval = setInterval(() => {
+        messageDiv.textContent += text[i];
         i++;
-        setTimeout(displayMessages, 1500);
+        if (i === text.length) {
+          clearInterval(typingInterval);
+          callback();
+        }
+      }, 50);
+    }
+
+    function displayMessages() {
+      let i = 0;
+
+      function showNextMessage() {
+        if (i >= messages.length) return;
+
+        const typingIndicator = createTypingIndicator();
+        chatContainer.prepend(typingIndicator);
+
+        setTimeout(() => {
+          chatContainer.removeChild(typingIndicator);
+          typeMessage(messages[i].text, messages[i].side, () => {
+            i++;
+            setTimeout(showNextMessage, 500);
+          });
+        }, 1500);
       }
+
+      showNextMessage();
     }
 
     displayMessages();
