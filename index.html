@@ -23,6 +23,7 @@
       display: flex;
       flex-direction: column-reverse;
       padding: 10px;
+      padding-bottom: 60px; /* typing-box 영역 */
       box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2);
       overflow-y: auto;
       position: relative;
@@ -61,20 +62,8 @@
       background-color: #e5e5ea;
       border-radius: 15px;
       padding: 8px 12px;
-      position: absolute;
-      bottom: 60px; /* typing-box 위 */
-      max-width: 70%;
-      margin: 0 5px;
-    }
-
-    .typing-bubble.left {
-      left: 10px;
-    }
-
-    .typing-bubble.right {
-      right: 10px;
-      background-color: #007aff;
-      color: white;
+      width: fit-content;
+      margin: 5px;
     }
 
     .dot {
@@ -96,73 +85,47 @@
     #typing-box {
       position: absolute;
       bottom: 0;
-      left: 0;
-      width: 100%;
-      background-color: white;
+      width: calc(100% - 20px);
       border-top: 1px solid #ddd;
       padding: 10px;
-      display: flex;
-      align-items: center;
-    }
-
-    #cursor {
-      width: 2px;
-      height: 16px;
-      background-color: black;
-      animation: blink 1s infinite;
-    }
-
-    @keyframes blink {
-      0%, 100% { opacity: 1; }
-      50% { opacity: 0; }
+      background: #fff;
+      box-sizing: border-box;
     }
   </style>
 </head>
 <body>
   <div id="chat-container">
-    <div id="typing-box">
-      <span id="typing-text"></span>
-      <div id="cursor"></div>
-    </div>
+    <div id="typing-box"></div>
   </div>
 
   <script>
     const messages = [
       { text: "안녕, 오랜만이다!", side: "left" },
-      { text: "안녕!", side: "right" },
+      { text: "안녕!", side: "right", typing: true },
       { text: "그동안 연락도 없고, 서운해~", side: "left" },
-      { text: "미안ㅋㅋ. 어떻게 지냈어?", side: "right" }
+      { text: "미안ㅋㅋ. 어떻게 지냈어?", side: "right", typing: true },
+      { text: "나야 뭐 그냥 그렇지 뭐, 회사 다니고 뭐하고 바빠. 너는?", side: "left" },
+      { text: "나 복권 당첨돼서 귀농 준비해.", side: "right", typing: true },
+      { text: "예전이랑 똑같지 뭐. 한 것도 없는데 나이만 먹었다.", side: "right", typing: true },
+      { text: "요즘 좀 힘들었어. 그래도 네 얼굴 보니 좋다.", side: "right", typing: true },
+      { text: "집에만 있었어. 오늘도 어찌나 눈치가 보이던지..", side: "right", typing: true },
+      { text: "매일, 매일의 구분 없이 지냈어. 세상은 변하는데 나는 그대로네.", side: "right", typing: true }
     ];
 
     const chatContainer = document.getElementById("chat-container");
-    const typingText = document.getElementById("typing-text");
 
-    function createTypingBubble(side) {
+    function createTypingBubble() {
       const bubble = document.createElement("div");
-      bubble.className = `typing-bubble ${side}`;
+      bubble.classList.add("typing-bubble");
       bubble.innerHTML = `
         <div class="dot"></div>
         <div class="dot"></div>
         <div class="dot"></div>
       `;
-      chatContainer.appendChild(bubble); // 채팅창 맨 아래에 추가
       return bubble;
     }
 
-    function typeInChat(text, callback) {
-      let i = 0;
-      typingText.textContent = "";
-      const typingInterval = setInterval(() => {
-        typingText.textContent += text[i];
-        i++;
-        if (i === text.length) {
-          clearInterval(typingInterval);
-          callback();
-        }
-      }, 50);
-    }
-
-    function addMessageToChat(text, side) {
+    function addMessage(text, side) {
       const message = document.createElement("div");
       message.classList.add("message", side);
       message.textContent = text;
@@ -175,15 +138,22 @@
       function showNextMessage() {
         if (i >= messages.length) return;
 
-        const bubbleSide = messages[i].side;
-        const typingBubble = createTypingBubble(bubbleSide);
+        const { text, side, typing } = messages[i];
+        if (typing) {
+          const typingBubble = createTypingBubble();
+          chatContainer.insertBefore(typingBubble, chatContainer.firstChild);
 
-        typeInChat(messages[i].text, () => {
-          chatContainer.removeChild(typingBubble);
-          addMessageToChat(messages[i].text, bubbleSide);
+          setTimeout(() => {
+            chatContainer.removeChild(typingBubble);
+            addMessage(text, side);
+            i++;
+            showNextMessage();
+          }, 1500);
+        } else {
+          addMessage(text, side);
           i++;
           setTimeout(showNextMessage, 500);
-        });
+        }
       }
 
       showNextMessage();
