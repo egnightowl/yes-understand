@@ -21,7 +21,7 @@
       background-color: #fff;
       border-radius: 15px;
       display: flex;
-      flex-direction: column-reverse; /* 아래에서 위로 쌓이게 설정 */
+      flex-direction: column-reverse;
       padding: 10px;
       box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2);
       overflow-y: auto;
@@ -30,7 +30,7 @@
 
     .message {
       max-width: 70%;
-      margin: 5px 0;
+      margin: 5px;
       padding: 8px 12px;
       border-radius: 15px;
       word-wrap: break-word;
@@ -58,21 +58,23 @@
       display: flex;
       gap: 4px;
       align-items: center;
+      background-color: #e5e5ea;
       border-radius: 15px;
       padding: 8px 12px;
       position: absolute;
-      bottom: 60px; /* typing-box 위에 위치 */
+      bottom: 60px; /* typing-box 위 */
+      max-width: 70%;
+      margin: 0 5px;
     }
 
     .typing-bubble.left {
-      background-color: #e5e5ea;
       left: 10px;
     }
 
     .typing-bubble.right {
+      right: 10px;
       background-color: #007aff;
       color: white;
-      right: 10px;
     }
 
     .dot {
@@ -143,6 +145,7 @@
         <div class="dot"></div>
         <div class="dot"></div>
       `;
+      chatContainer.appendChild(bubble); // 채팅창 맨 아래에 추가
       return bubble;
     }
 
@@ -174,7 +177,6 @@
 
         const bubbleSide = messages[i].side;
         const typingBubble = createTypingBubble(bubbleSide);
-        chatContainer.appendChild(typingBubble);
 
         typeInChat(messages[i].text, () => {
           chatContainer.removeChild(typingBubble);
