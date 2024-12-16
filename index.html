@@ -21,9 +21,8 @@
       background-color: #fff;
       border-radius: 15px;
       display: flex;
-      flex-direction: column;
+      flex-direction: column-reverse; /* 아래에서 위로 쌓이게 설정 */
       padding: 10px;
-      padding-bottom: 50px;
       box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2);
       overflow-y: auto;
       position: relative;
@@ -50,17 +49,6 @@
       color: white;
     }
 
-    @keyframes pop-in {
-      from {
-        transform: scale(0.8);
-        opacity: 0;
-      }
-      to {
-        transform: scale(1);
-        opacity: 1;
-      }
-    }
-
     .typing-bubble {
       display: flex;
       gap: 4px;
@@ -68,12 +56,12 @@
       background-color: #e5e5ea;
       border-radius: 15px;
       padding: 8px 12px;
-      width: fit-content;
       margin: 5px;
+      width: fit-content;
     }
 
-    .typing-bubble.right { align-self: flex-end; }
     .typing-bubble.left { align-self: flex-start; }
+    .typing-bubble.right { align-self: flex-end; }
 
     .dot {
       width: 6px;
@@ -86,31 +74,39 @@
     .dot:nth-child(2) { animation-delay: 0.2s; }
     .dot:nth-child(3) { animation-delay: 0.4s; }
 
+    @keyframes pop-in {
+      from {
+        transform: scale(0.8);
+        opacity: 0;
+      }
+      to {
+        transform: scale(1);
+        opacity: 1;
+      }
+    }
+
     @keyframes bounce {
       0%, 100% { opacity: 0.3; }
       50% { opacity: 1; }
     }
 
     #typing-box {
-      display: flex;
-      border-top: 1px solid #ddd;
-      padding: 10px;
-      align-items: center;
-      width: calc(100% - 20px);
-      background: #fff;
       position: absolute;
       bottom: 0;
-    }
-
-    #typing-box span {
-      display: inline-block;
-      white-space: pre;
+      left: 0;
+      width: 100%;
+      background-color: #fff;
+      border-top: 1px solid #ddd;
+      padding: 10px;
+      display: flex;
+      align-items: center;
     }
 
     #cursor {
       width: 2px;
       height: 16px;
       background: black;
+      margin-left: 2px;
       animation: blink 1s infinite;
     }
 
@@ -130,49 +126,75 @@
   <script>
     const messages = [
       { text: "안녕, 오랜만이다!", side: "left" },
-      { text: "안녕!", side: "right" },
+      { text: "안녕!", side: "right", typing: true },
       { text: "그동안 연락도 없고, 서운해~", side: "left" },
-      { text: "미안ㅋㅋ. 어떻게 지냈어?", side: "right" },
+      { text: "미안ㅋㅋ. 어떻게 지냈어?", side: "right", typing: true },
       { text: "나야 뭐 그냥 그렇지 뭐, 회사 다니고 뭐하고 바빠. 너는?", side: "left" },
-      { text: "나 복권 당첨돼서 귀농 준비해.", side: "right" },
-      { text: "예전이랑 똑같지 뭐. 한 것도 없는데 나이만 먹었다.", side: "right" },
-      { text: "요즘 좀 힘들었어. 그래도 네 얼굴 보니 좋다.", side: "right" },
-      { text: "집에만 있었어. 오늘도 어찌나 눈치가 보이던지..", side: "right" },
-      { text: "매일, 매일의 구분 없이 지냈어. 세상은 변하는데 나는 그대로네.", side: "right" }
+      { text: "나 복권 당첨돼서 귀농 준비해.", side: "right", typing: true },
+      { text: "예전이랑 똑같지 뭐. 한 것도 없는데 나이만 먹었다.", side: "right", typing: true }
     ];
 
     const chatContainer = document.getElementById("chat-container");
+    const typingText = document.getElementById("typing-text");
 
     function createTypingBubble(side) {
       const bubble = document.createElement("div");
       bubble.className = `typing-bubble ${side}`;
-      bubble.innerHTML = `<div class="dot"></div><div class="dot"></div><div class="dot"></div>`;
+      bubble.innerHTML = `
+        <div class="dot"></div>
+        <div class="dot"></div>
+        <div class="dot"></div>
+      `;
       return bubble;
     }
 
-    function addMessage(text, side) {
+    function addMessageToChat(text, side) {
       const message = document.createElement("div");
-      message.className = `message ${side}`;
+      message.classList.add("message", side);
       message.textContent = text;
-      chatContainer.appendChild(message);
-      chatContainer.scrollTop = chatContainer.scrollHeight;
+      chatContainer.insertBefore(message, chatContainer.firstChild);
     }
 
-    async function displayMessages() {
-      for (const msg of messages) {
-        if (msg.side === "right") {
-          const typingBubble = createTypingBubble("right");
-          chatContainer.appendChild(typingBubble);
-          chatContainer.scrollTop = chatContainer.scrollHeight;
-
-          await new Promise((resolve) => setTimeout(resolve, 1000));
-          chatContainer.removeChild(typingBubble);
-          addMessage(msg.text, "right");
-        } else {
-          addMessage(msg.text, "left");
+    function typeInChat(text, callback) {
+      let i = 0;
+      typingText.textContent = "";
+      const typingInterval = setInterval(() => {
+        typingText.textContent += text[i];
+        i++;
+        if (i === text.length) {
+          clearInterval(typingInterval);
+          callback();
         }
-        await new Promise((resolve) => setTimeout(resolve, 500));
+      }, 50);
+    }
+
+    function displayMessages() {
+      let i = 0;
+
+      function showNextMessage() {
+        if (i >= messages.length) return;
+
+        const { text, side, typing } = messages[i];
+
+        if (typing && side === "right") {
+          const typingBubble = createTypingBubble(side);
+          chatContainer.insertBefore(typingBubble, chatContainer.firstChild);
+
+          typeInChat(text, () => {
+            chatContainer.removeChild(typingBubble);
+            addMessageToChat(text, side);
+            typingText.textContent = "";
+            i++;
+            setTimeout(showNextMessage, 500);
+          });
+        } else {
+          addMessageToChat(text, side);
+          i++;
+          setTimeout(showNextMessage, 500);
+        }
       }
+
+      showNextMessage();
     }
 
     displayMessages();
